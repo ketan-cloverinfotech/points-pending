@@ -1,0 +1,30 @@
+name: Deploy GitHub Pages Branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "site/**"
+      - ".github/workflows/deploy-pages-branch.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-pages-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Publish only the static site folder to gh-pages branch
+      - name: Publish site to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./site

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Status Mail Builder with AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">GitHub Pages Mail Template</p>
+      <h1>Status Mail Builder</h1>
+      <p class="header-note">Create mail updates with Completed, On Hold, and Pending sections. Improve sentences using OpenAI through a safe API proxy.</p>
+    </div>
+    <div class="header-actions">
+      <button id="loadSampleBtn" class="btn secondary">Load sample</button>
+      <button id="clearBtn" class="btn danger-light">Clear</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel editor-panel" aria-label="Mail editor">
+      <div class="panel-title-row">
+        <h2>Mail Details</h2>
+        <span class="pill">Auto saved in browser</span>
+      </div>
+
+      <details class="ai-box" open>
+        <summary>AI Sentence Improvement</summary>
+        <p class="help-text">Use a backend proxy URL. Do not paste your OpenAI API key inside GitHub Pages code.</p>
+
+        <label class="field-label" for="aiEndpoint">AI Proxy URL</label>
+        <input id="aiEndpoint" class="input" type="url" placeholder="https://your-worker.workers.dev/api/enhance" />
+
+        <label class="field-label" for="aiModel">OpenAI Model</label>
+        <select id="aiModel" class="input">
+          <option value="gpt-5.4-nano">gpt-5.4-nano - low-cost nano option</option>
+          <option value="gpt-5-nano">gpt-5-nano - older nano option, if enabled</option>
+          <option value="gpt-5.4-mini">gpt-5.4-mini - better quality, still low cost</option>
+          <option value="gpt-5-mini">gpt-5-mini - older mini option, if enabled</option>
+        </select>
+
+        <div class="ai-actions">
+          <button id="saveAiSettingsBtn" class="btn secondary" type="button">Save AI settings</button>
+          <button id="enhanceAllBtn" class="btn primary" type="button">Enhance all points with AI</button>
+        </div>
+      </details>
+
+      <label class="field-label" for="mailSubject">Subject</label>
+      <input id="mailSubject" class="input" type="text" placeholder="Example: Application Status Update" />
+
+      <label class="field-label" for="mailHeading">Heading</label>
+      <input id="mailHeading" class="input" type="text" placeholder="Example: Daily Activity Status" />
+
+      <label class="field-label" for="greeting">Greeting</label>
+      <input id="greeting" class="input" type="text" placeholder="Example: Hi Team," />
+
+      <label class="field-label" for="introText">Intro Message</label>
+      <textarea id="introText" class="textarea" rows="3" placeholder="Example: Please find the current status below."></textarea>
+
+      <div class="section-controls">
+        <h2>Status Points</h2>
+        <button id="addPointBtn" class="btn primary">+ Add Point</button>
+      </div>
+
+      <div id="pointsEditor" class="points-editor"></div>
+
+      <label class="field-label" for="closingText">Closing / Regards</label>
+      <textarea id="closingText" class="textarea" rows="3" placeholder="Example: Regards,&#10;Ketan"></textarea>
+    </section>
+
+    <section class="panel preview-panel" aria-label="Mail preview">
+      <div class="panel-title-row sticky-tools">
+        <h2>Preview</h2>
+        <div class="tool-buttons">
+          <button id="copyHtmlBtn" class="btn primary">Copy mail body</button>
+          <button id="copyTextBtn" class="btn secondary">Copy plain text</button>
+          <button id="downloadBtn" class="btn secondary">Download HTML</button>
+          <button id="openMailBtn" class="btn secondary">Open mail app</button>
+        </div>
+      </div>
+
+      <div id="copyStatus" class="copy-status" role="status" aria-live="polite"></div>
+      <div id="mailPreview" class="mail-preview"></div>
+    </section>
+  </main>
+
+  <template id="pointTemplate">
+    <article class="point-card">
+      <div class="point-header">
+        <select class="input small status-select" aria-label="Status">
+          <option value="completed">Completed</option>
+          <option value="hold">On Hold</option>
+          <option value="pending">Pending</option>
+        </select>
+        <div class="point-buttons">
+          <button class="btn ai-light enhance-point" title="Improve this point using AI" type="button">✨ Enhance from AI</button>
+          <button class="btn icon danger-light remove-point" title="Remove point" type="button">Remove</button>
+        </div>
+      </div>
+
+      <label class="field-label">Point Title</label>
+      <input class="input point-title" type="text" placeholder="Example: Certificate Status on Server" />
+
+      <label class="field-label">Action / Owner</label>
+      <input class="input point-action" type="text" placeholder="Example: Action Required: Provide VPN credentials" />
+
+      <label class="field-label">Details</label>
+      <textarea class="textarea point-details" rows="4" placeholder="Write the complete update here..."></textarea>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>

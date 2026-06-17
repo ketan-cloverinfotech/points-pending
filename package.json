@@ -1,0 +1,12 @@
+{
+  "name": "mail-status-github-pages-github-secret",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Pages status mail builder with OpenAI sentence improvement through a Cloudflare Worker proxy deployed by GitHub Actions.",
+  "scripts": {
+    "deploy:worker": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}

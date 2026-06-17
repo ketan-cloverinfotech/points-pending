@@ -1,0 +1,6 @@
+name = "mail-status-ai-proxy"
+main = "worker/openai-worker.js"
+compatibility_date = "2026-06-01"
+
+# Account ID is supplied from GitHub Actions using CLOUDFLARE_ACCOUNT_ID.
+# Do not put OPENAI_API_KEY in this file.

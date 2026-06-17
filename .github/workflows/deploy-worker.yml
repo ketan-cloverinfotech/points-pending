@@ -1,0 +1,47 @@
+name: Deploy AI Proxy Worker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "worker/openai-worker.js"
+      - "wrangler.toml"
+      - "package.json"
+      - ".github/workflows/deploy-worker.yml"
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install Node.js for Wrangler CLI
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Install project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Deploy Worker code to Cloudflare
+      - name: Deploy Cloudflare Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+      # Push OpenAI key from GitHub Secret into Cloudflare Worker secret storage
+      - name: Set OpenAI API key as Worker secret
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          printf "%s" "$OPENAI_API_KEY" | npx wrangler secret put OPENAI_API_KEY --name mail-status-ai-proxy
