@@ -1,18 +1,17 @@
-# Status Mail Builder with AI using GitHub Repository Secrets
+# Status Mail Builder with AI
 
 This repository contains a GitHub Pages app for preparing status update emails.
 
-It has three sections:
+It supports:
 
 - Completed Points - green
 - On Hold Points - amber/yellow
 - Pending Points - red
+- AI sentence improvement through a Cloudflare Worker proxy
 
-It also has **Enhance from AI** for improving sentence quality.
+## Important
 
-## Important design
-
-Do not put your OpenAI API key in `site/index.html`, `site/script.js`, or any frontend file.
+Do not put your OpenAI API key in `index.html`, `script.js`, `site/index.html`, or any frontend file.
 
 This setup uses GitHub Repository Secrets like this:
 
@@ -30,263 +29,243 @@ GitHub Pages app calls Worker URL
 Worker calls OpenAI API safely
 ```
 
-Why: GitHub Pages is a static website. Browser JavaScript cannot safely read secrets.
+## Branch setup
+
+You can use either deployment method now.
+
+### Option A: Publish from `master / root`
+
+The app files are also available at repo root:
+
+```text
+index.html
+style.css
+script.js
+```
+
+Use this if your GitHub Pages setting is:
+
+```text
+Source: Deploy from a branch
+Branch: master
+Folder: /root
+```
+
+### Option B: Publish from `gh-pages / root`
+
+The workflow publishes only the app files from `site/` to `gh-pages`.
+
+Use this if your GitHub Pages setting is:
+
+```text
+Source: Deploy from a branch
+Branch: gh-pages
+Folder: /root
+```
+
+Recommended method: **Option B**.
+
+
+## AI reasoning effort selection
+
+The page now has a **Reasoning Effort** dropdown.
+
+| Effort | When to use | Note |
+|---|---|---|
+| `none` | Fastest basic cleanup | Lowest sentence improvement |
+| `low` | Quick low-cost correction | Good for small grammar fixes |
+| `medium` | Recommended default | Better sentence quality for status mails |
+| `high` | Important or poorly written points | Slower and may cost more |
+| `xhigh` | Maximum reasoning | Slowest and highest cost |
+
+For your status mail use case, start with `medium`. Use `high` only when the text needs stronger rewriting.
 
 ## Folder structure
 
 ```text
+index.html                  # Same app at root for master/root Pages
+style.css
+script.js
+.nojekyll
+
 site/
-  index.html          # GitHub Pages UI
-  style.css           # UI colors and layout
-  script.js           # Mail builder and AI button logic
+  index.html                # GitHub Pages app source
+  style.css                 # UI styles
+  script.js                 # Mail builder and AI logic
+  .nojekyll
 
 worker/
-  openai-worker.js    # Cloudflare Worker proxy for OpenAI
+  openai-worker.js          # Cloudflare Worker proxy for OpenAI
 
 .github/workflows/
-  deploy-worker.yml        # Uses GitHub Secrets and deploys Worker
-  deploy-pages-branch.yml  # Publishes site/ to gh-pages branch
+  deploy-pages-branch.yml   # Publishes site/ to gh-pages branch
+  deploy-worker.yml         # Deploys Worker and sets OpenAI secret
 
-wrangler.toml         # Cloudflare Worker config
-package.json          # Wrangler dependency
+wrangler.toml               # Cloudflare Worker config
+package.json                # Wrangler dependency
 ```
 
-## Step 1: Create repository
+## GitHub repository secrets
 
-Create a new GitHub repository, for example:
-
-```text
-mail-status-builder
-```
-
-Then push this code to the `main` branch.
-
-```bash
-# Clone your empty repository
-git clone https://github.com/<your-user>/mail-status-builder.git
-cd mail-status-builder
-
-# Copy all files from this ZIP into the repository folder
-
-# Commit the code
-git add .
-git commit -m "Add status mail builder with AI proxy"
-
-# Push to main branch
-git push origin main
-```
-
-## Step 2: Create GitHub Repository Secrets
-
-Open your repository in GitHub.
-
-Go to:
+Create these secrets here:
 
 ```text
 Repository → Settings → Secrets and variables → Actions → New repository secret
 ```
 
-Create these secrets:
-
-| Secret name | Value |
-|---|---|
-| `OPENAI_API_KEY` | Your OpenAI API key |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API token used by Wrangler |
-| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
-
-Secret names must be exactly the same.
-
-## Step 3: Create Cloudflare API token
-
-In Cloudflare:
+Required secrets:
 
 ```text
-Cloudflare Dashboard → My Profile → API Tokens → Create Token
-```
-
-Use a token that can deploy/edit Workers.
-
-Save that token in GitHub as:
-
-```text
+OPENAI_API_KEY
 CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
 ```
 
-## Step 4: Run Worker deployment workflow
+## Deploy frontend app
 
-In GitHub:
+Push this code to your `master` branch.
 
-```text
-Repository → Actions → Deploy AI Proxy Worker → Run workflow
+```bash
+# Add all updated files
+git add .
 ```
 
-This workflow will:
-
-1. Deploy `worker/openai-worker.js` to Cloudflare Workers.
-2. Read `OPENAI_API_KEY` from GitHub Repository Secrets.
-3. Store it as a Cloudflare Worker secret named `OPENAI_API_KEY`.
-
-After it completes, your Worker URL will look like this:
-
-```text
-https://mail-status-ai-proxy.<your-cloudflare-subdomain>.workers.dev
+```bash
+# Commit changes
+git commit -m "Update status mail builder for master and gh-pages"
 ```
 
-Use this in the app as your **AI Proxy URL**.
-
-Example:
-
-```text
-https://mail-status-ai-proxy.<your-cloudflare-subdomain>.workers.dev/api/enhance
+```bash
+# Push to master
+git push origin master
 ```
 
-The Worker accepts any path, so `/api/enhance` is okay.
-
-## Step 5: Deploy GitHub Pages using branch
-
-Run this workflow:
+Then run:
 
 ```text
-Repository → Actions → Deploy GitHub Pages Branch → Run workflow
+Actions → Deploy GitHub Pages Branch → Run workflow
 ```
 
-It publishes only the `site/` folder to the `gh-pages` branch.
-
-Then enable GitHub Pages:
+Then set GitHub Pages to one of these:
 
 ```text
-Repository → Settings → Pages
-```
-
-Select:
-
-```text
-Source: Deploy from a branch
+Recommended:
 Branch: gh-pages
-Folder: / root
-```
-
-Save it.
-
-Your app URL will look like:
-
-```text
-https://<your-user>.github.io/mail-status-builder/
-```
-
-## Step 6: Configure AI in the app
-
-Open the GitHub Pages app.
-
-In **AI Sentence Improvement**, add:
-
-```text
-AI Proxy URL: https://mail-status-ai-proxy.<your-cloudflare-subdomain>.workers.dev/api/enhance
-Model: gpt-5.4-nano
-```
-
-Click:
-
-```text
-Save AI settings
-```
-
-Then use:
-
-```text
-Enhance from AI
+Folder: /root
 ```
 
 or:
 
 ```text
-Enhance all points with AI
+Fallback:
+Branch: master
+Folder: /root
 ```
 
-## Example raw input
+## Deploy AI Worker
+
+Run:
 
 ```text
-Point Title:
-Actual K8s Cluster Overview
-
-Action / Owner:
-Sandeep pal didn't explain AKS cluster and configuration as this is required while Upgradation
-
-Details:
-Cluster configuration is crusial part as client required to upgrade the version
+Actions → Deploy AI Proxy Worker → Run workflow
 ```
 
-## Example improved output
+After success, open Cloudflare Worker and copy the Worker URL:
 
 ```text
-Point Title:
-Actual AKS Cluster Overview
+https://mail-status-ai-proxy.<your-subdomain>.workers.dev
+```
 
-Action / Owner:
-The AKS cluster overview and configuration details are required before proceeding with the upgrade activity.
+Paste that URL in the app under:
 
-Details:
-Cluster configuration is a critical prerequisite because the client has requested a Kubernetes version upgrade.
+```text
+AI Proxy URL
+```
+
+Then click:
+
+```text
+Enhance from AI
 ```
 
 ## Common mistakes
 
-### 1. Expecting GitHub Pages to read secrets
+### GitHub Pages shows README instead of app
 
-GitHub Pages cannot read GitHub Repository Secrets at runtime.
+Reason: Pages is publishing from a branch/folder that does not have `index.html` at root.
 
-Secrets are available to GitHub Actions workflow runs only.
-
-### 2. Hardcoding OpenAI API key in frontend code
-
-Do not do this:
-
-```js
-const OPENAI_API_KEY = "sk-xxxx";
-```
-
-Anyone can open browser DevTools and copy the key.
-
-### 3. Publishing Worker files to GitHub Pages
-
-This setup publishes only the `site/` folder to the `gh-pages` branch.
-
-The Worker code remains in `main` and is deployed using GitHub Actions.
-
-### 4. Using a costly model for simple sentence improvement
-
-Start with:
+Fix:
 
 ```text
-gpt-5.4-nano
+Settings → Pages → Branch: gh-pages → Folder: /root → Save
 ```
 
-Use a bigger model only if the output quality is not enough.
-
-### 5. Sending sensitive customer data
-
-Do not paste passwords, tokens, secrets, private keys, or confidential customer data into AI enhancement.
-
-## Local Worker test
-
-For local testing, install dependencies:
-
-```bash
-# Install Wrangler dependency
-npm install
-```
-
-Run locally:
-
-```bash
-# Start Worker locally
-npx wrangler dev
-```
-
-Set the secret locally using a `.dev.vars` file if needed:
+or use the root files and publish from:
 
 ```text
-OPENAI_API_KEY=sk-xxxx
+Settings → Pages → Branch: master → Folder: /root → Save
 ```
 
-Do not commit `.dev.vars` or `.env` files.
+### AI button says OpenAI key missing
+
+Reason: Worker does not have `OPENAI_API_KEY` secret.
+
+Fix:
+
+```text
+Actions → Deploy AI Proxy Worker → Run workflow
+```
+
+### AI button fails before Worker deployment
+
+Reason: Cloudflare Worker still has default Hello World code.
+
+Fix: Deploy Worker using GitHub Action.
+
+
+## Fix for Wrangler Node.js error
+
+If GitHub Actions shows this error:
+
+```text
+Wrangler requires at least Node.js v22.0.0. You are using v20.x.x.
+```
+
+The workflow already fixes it by using:
+
+```yaml
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: "22"
+```
+
+After pushing this code, rerun:
+
+```text
+Actions → Deploy AI Proxy Worker → Run workflow
+```
+
+
+## Fix included
+
+This version fixes the OpenAI API error:
+
+```text
+Unsupported value: 'minimal' is not supported with the selected GPT-5.4 model. This version sends a user-selected value only: none, low, medium, high, or xhigh.
+```
+
+The Cloudflare Worker now uses:
+
+```javascript
+reasoning: {
+  effort: 'low'
+}
+```
+
+After pushing this code, run:
+
+```text
+Actions → Deploy AI Proxy Worker → Run workflow
+```
+

@@ -21,6 +21,12 @@ function safeText(value, maxLength = 2500) {
   return String(value || '').trim().slice(0, maxLength);
 }
 
+function getReasoningEffort(value) {
+  const effort = safeText(value, 20).toLowerCase();
+  const allowed = ['none', 'low', 'medium', 'high', 'xhigh'];
+  return allowed.includes(effort) ? effort : 'medium';
+}
+
 function buildPrompt(point) {
   return JSON.stringify({
     task: 'Improve the sentence quality for a status update email.',
@@ -104,7 +110,8 @@ export default {
     }
 
     const point = body.point || {};
-    const model = safeText(body.model, 80) || 'gpt-5.4-nano';
+    const model = safeText(body.model, 80) || 'gpt-5.4-mini';
+    const effort = getReasoningEffort(body.effort);
 
     if (!point.title && !point.action && !point.details) {
       return jsonResponse({ error: 'Point title, action, or details are required.' }, 400);
@@ -123,7 +130,7 @@ export default {
         }
       ],
       reasoning: {
-        effort: 'minimal'
+        effort
       },
       max_output_tokens: 700
     };

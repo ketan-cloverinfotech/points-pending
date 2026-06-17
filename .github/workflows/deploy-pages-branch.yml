@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - master
       - main
     paths:
       - "site/**"
+      - "index.html"
+      - "style.css"
+      - "script.js"
       - ".github/workflows/deploy-pages-branch.yml"
 
 permissions:
@@ -17,14 +21,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository code
+      # Checkout repository code from master/main
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Publish only the static site folder to gh-pages branch
-      - name: Publish site to gh-pages branch
+      # Publish only the static app folder to the gh-pages branch
+      - name: Publish site folder to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./site
+          force_orphan: true
