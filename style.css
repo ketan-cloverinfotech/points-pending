@@ -271,6 +271,7 @@ h1 {
   min-height: 520px;
   overflow: auto;
   padding: 18px;
+  text-align: center;
   border: 1px dashed #cbbcd2;
   border-radius: 14px;
   background: #fbf8fd;

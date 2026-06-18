@@ -251,13 +251,13 @@ function buildSection(status, points) {
   const c = sectionColors(status);
   const rows = points.map(point => `
     <tr>
-      <td style="width:24%;padding:11px 12px;border:1px solid #d9cde0;border-left:4px solid ${c.border};background:${c.bg};color:${c.dark};font-weight:700;font-size:13px;line-height:1.45;vertical-align:top;">
+      <td style="width:24%;padding:11px 12px;border:1px solid #d9cde0;border-left:4px solid ${c.border};background:${c.bg};color:${c.dark};font-weight:700;font-size:13px;line-height:1.45;vertical-align:top;word-break:break-word;">
         ${nl2br(point.title || sectionLabel(status))}
       </td>
-      <td style="width:32%;padding:11px 12px;border:1px solid #d9cde0;background:${c.bg};color:#24112f;font-size:13px;line-height:1.45;vertical-align:top;">
+      <td style="width:32%;padding:11px 12px;border:1px solid #d9cde0;background:${c.bg};color:#24112f;font-size:13px;line-height:1.45;vertical-align:top;word-break:break-word;">
         ${point.action ? nl2br(point.action) : '&nbsp;'}
       </td>
-      <td style="width:44%;padding:11px 12px;border:1px solid #d9cde0;background:${c.bg};color:#24112f;font-size:13px;line-height:1.45;vertical-align:top;">
+      <td style="width:44%;padding:11px 12px;border:1px solid #d9cde0;background:${c.bg};color:#24112f;font-size:13px;line-height:1.45;vertical-align:top;word-break:break-word;">
         ${point.details ? nl2br(point.details) : '&nbsp;'}
       </td>
     </tr>
@@ -273,7 +273,7 @@ function buildSection(status, points) {
       </tr>
       <tr>
         <td style="padding-top:10px;">
-          <table role="table" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #d9cde0;font-family:Aptos, Calibri, Arial, sans-serif;">
+          <table role="table" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #d9cde0;font-family:Aptos, Calibri, Arial, sans-serif;table-layout:fixed;">
             <thead>
               <tr>
                 <th align="left" style="width:24%;padding:9px 12px;border:1px solid #d9cde0;background:${c.headerBg};color:${c.dark};font-size:12px;line-height:1.35;font-weight:700;">Point Title</th>
@@ -294,22 +294,16 @@ function buildEmailHtml() {
   const heading = state.heading || 'Status Update';
 
   return `
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;">
+    <table role="presentation" align="center" width="760" cellpadding="0" cellspacing="0" style="width:760px;min-width:760px;max-width:760px;border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;margin:0 auto;table-layout:fixed;">
       <tr>
-        <td align="center" style="padding:0;">
-          <table role="presentation" width="760" cellpadding="0" cellspacing="0" style="width:760px;max-width:100%;border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;">
-            <tr>
-              <td style="padding:22px 24px 8px 24px;">
-                <div style="margin:0 0 14px 0;color:#370641;font-size:22px;line-height:1.25;font-weight:700;">${escapeHtml(heading)}</div>
-                ${state.greeting ? `<div style="margin:0 0 12px 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.greeting)}</div>` : ''}
-                ${state.intro ? `<div style="margin:0 0 12px 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.intro)}</div>` : ''}
-                ${buildSection('completed', grouped.completed)}
-                ${buildSection('hold', grouped.hold)}
-                ${buildSection('pending', grouped.pending)}
-                ${state.closing ? `<div style="margin:18px 0 0 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.closing)}</div>` : ''}
-              </td>
-            </tr>
-          </table>
+        <td width="712" style="width:712px;padding:22px 24px 8px 24px;">
+          <div style="margin:0 0 14px 0;color:#370641;font-size:22px;line-height:1.25;font-weight:700;">${escapeHtml(heading)}</div>
+          ${state.greeting ? `<div style="margin:0 0 12px 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.greeting)}</div>` : ''}
+          ${state.intro ? `<div style="margin:0 0 12px 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.intro)}</div>` : ''}
+          ${buildSection('completed', grouped.completed)}
+          ${buildSection('hold', grouped.hold)}
+          ${buildSection('pending', grouped.pending)}
+          ${state.closing ? `<div style="margin:18px 0 0 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.closing)}</div>` : ''}
         </td>
       </tr>
     </table>
@@ -409,12 +403,12 @@ async function copyRichHtml() {
           'text/plain': new Blob([plain], { type: 'text/plain' })
         })
       ]);
-      showStatus('Formatted mail table copied. Paste it directly in Gmail or Outlook compose.');
+      showStatus('Exact-width formatted table copied. Paste it directly in Gmail or Outlook compose.');
       return;
     }
 
     if (legacyCopyHtml(html)) {
-      showStatus('Formatted mail table copied. Paste it directly in Gmail or Outlook compose.');
+      showStatus('Exact-width formatted table copied. Paste it directly in Gmail or Outlook compose.');
       return;
     }
 

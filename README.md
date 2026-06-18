@@ -80,6 +80,23 @@ The page now has a **Reasoning Effort** dropdown.
 
 For your status mail use case, start with `medium`. Use `high` only when the text needs stronger rewriting.
 
+
+## Rich copy and exact table width
+
+Use **Copy exact table** when pasting into Gmail or Outlook.
+
+The copied HTML now uses one fixed-width centered email table:
+
+```text
+Email width: 760px
+Content width: 712px
+Font: Aptos, Calibri, Arial, sans-serif
+```
+
+This avoids the large full-page blue selection box that happens when the copied HTML contains a `width="100%"` outer wrapper.
+
+`Copy plain text` and `Open mail app` are still plain text by design. `mailto:` links do not reliably support HTML tables.
+
 ## Folder structure
 
 ```text
