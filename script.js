@@ -294,7 +294,7 @@ function buildEmailHtml() {
   const heading = state.heading || 'Status Update';
 
   return `
-    <table role="presentation" align="center" width="760" cellpadding="0" cellspacing="0" style="width:760px;min-width:760px;max-width:760px;border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;margin:0 auto;table-layout:fixed;">
+    <table role="presentation" align="left" width="760" cellpadding="0" cellspacing="0" style="width:760px;min-width:760px;max-width:760px;border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;margin:0;table-layout:fixed;">
       <tr>
         <td width="712" style="width:712px;padding:22px 24px 8px 24px;">
           <div style="margin:0 0 14px 0;color:#370641;font-size:22px;line-height:1.25;font-weight:700;">${escapeHtml(heading)}</div>
@@ -403,12 +403,12 @@ async function copyRichHtml() {
           'text/plain': new Blob([plain], { type: 'text/plain' })
         })
       ]);
-      showStatus('Exact-width formatted table copied. Paste it directly in Gmail or Outlook compose.');
+      showStatus('Left-aligned exact-width table copied. Paste it directly in Gmail or Outlook compose.');
       return;
     }
 
     if (legacyCopyHtml(html)) {
-      showStatus('Exact-width formatted table copied. Paste it directly in Gmail or Outlook compose.');
+      showStatus('Left-aligned exact-width table copied. Paste it directly in Gmail or Outlook compose.');
       return;
     }
 

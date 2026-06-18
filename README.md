@@ -305,3 +305,22 @@ Important:
 - **Copy plain text** intentionally copies only text.
 - **Open mail app** uses `mailto:` and most mail clients accept only plain text through that path.
 
+
+
+## Latest fix: left-aligned Gmail paste
+
+The copied email table is now left-aligned instead of centered.
+
+Changed copied HTML root table from:
+
+```html
+<table align="center" style="margin:0 auto;">
+```
+
+to:
+
+```html
+<table align="left" style="margin:0;">
+```
+
+This keeps the table exact width but places it at the left side of Gmail/Outlook compose.
