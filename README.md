@@ -269,3 +269,22 @@ After pushing this code, run:
 Actions → Deploy AI Proxy Worker → Run workflow
 ```
 
+
+## Rich email copy update
+
+The **Copy mail body** button now copies a formatted HTML table with inline email-safe styles.
+
+Recommended mail font:
+
+```text
+Aptos, Calibri, Arial, sans-serif
+```
+
+Why: Aptos is the current Microsoft 365 default font, Calibri is still common in older Outlook, and Arial is a safe fallback for Gmail and browsers.
+
+Important:
+
+- Use **Copy mail body** for formatted table output.
+- **Copy plain text** intentionally copies only text.
+- **Open mail app** uses `mailto:` and most mail clients accept only plain text through that path.
+

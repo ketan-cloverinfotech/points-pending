@@ -66,6 +66,10 @@ function escapeHtml(value = '') {
     .replaceAll("'", '&#039;');
 }
 
+function nl2br(value = '') {
+  return escapeHtml(value).replace(/\r?\n/g, '<br>');
+}
+
 function loadState() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) {
@@ -214,22 +218,74 @@ function sectionIcon(status) {
   return icons[status];
 }
 
+function sectionColors(status) {
+  const colors = {
+    completed: {
+      main: '#0f8a3b',
+      dark: '#087333',
+      bg: '#eaf8ef',
+      headerBg: '#d9f2e3',
+      border: '#1f9d4c'
+    },
+    hold: {
+      main: '#b7791f',
+      dark: '#8a5a10',
+      bg: '#fff7df',
+      headerBg: '#ffefbf',
+      border: '#d99a1e'
+    },
+    pending: {
+      main: '#c62828',
+      dark: '#9f1f1f',
+      bg: '#fff0f0',
+      headerBg: '#ffdede',
+      border: '#d93025'
+    }
+  };
+  return colors[status];
+}
+
 function buildSection(status, points) {
   if (!points.length) return '';
 
-  const cards = points.map(point => `
-    <div class="status-card ${status}">
-      <p class="card-title ${status}">${escapeHtml(point.title || sectionLabel(status))}</p>
-      ${point.action ? `<p class="card-action">${escapeHtml(point.action)}</p>` : ''}
-      ${point.details ? `<p class="card-detail">${escapeHtml(point.details)}</p>` : ''}
-    </div>
+  const c = sectionColors(status);
+  const rows = points.map(point => `
+    <tr>
+      <td style="width:24%;padding:11px 12px;border:1px solid #d9cde0;border-left:4px solid ${c.border};background:${c.bg};color:${c.dark};font-weight:700;font-size:13px;line-height:1.45;vertical-align:top;">
+        ${nl2br(point.title || sectionLabel(status))}
+      </td>
+      <td style="width:32%;padding:11px 12px;border:1px solid #d9cde0;background:${c.bg};color:#24112f;font-size:13px;line-height:1.45;vertical-align:top;">
+        ${point.action ? nl2br(point.action) : '&nbsp;'}
+      </td>
+      <td style="width:44%;padding:11px 12px;border:1px solid #d9cde0;background:${c.bg};color:#24112f;font-size:13px;line-height:1.45;vertical-align:top;">
+        ${point.details ? nl2br(point.details) : '&nbsp;'}
+      </td>
+    </tr>
   `).join('');
 
   return `
-    <section class="status-section">
-      <h2 class="status-heading"><span class="status-icon ${status}">${sectionIcon(status)}</span>${sectionLabel(status)}</h2>
-      ${cards}
-    </section>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:22px 0 0;font-family:Aptos, Calibri, Arial, sans-serif;">
+      <tr>
+        <td style="padding:0 0 8px 0;border-bottom:2px solid #4b0f58;">
+          <span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:${c.main};color:#ffffff;font-size:13px;font-weight:700;margin-right:8px;">${sectionIcon(status)}</span>
+          <span style="color:#370641;font-size:16px;font-weight:700;vertical-align:middle;">${sectionLabel(status)}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-top:10px;">
+          <table role="table" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #d9cde0;font-family:Aptos, Calibri, Arial, sans-serif;">
+            <thead>
+              <tr>
+                <th align="left" style="width:24%;padding:9px 12px;border:1px solid #d9cde0;background:${c.headerBg};color:${c.dark};font-size:12px;line-height:1.35;font-weight:700;">Point Title</th>
+                <th align="left" style="width:32%;padding:9px 12px;border:1px solid #d9cde0;background:${c.headerBg};color:${c.dark};font-size:12px;line-height:1.35;font-weight:700;">Action / Owner</th>
+                <th align="left" style="width:44%;padding:9px 12px;border:1px solid #d9cde0;background:${c.headerBg};color:${c.dark};font-size:12px;line-height:1.35;font-weight:700;">Details</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 }
 
@@ -238,15 +294,25 @@ function buildEmailHtml() {
   const heading = state.heading || 'Status Update';
 
   return `
-    <div class="email-shell">
-      <h1 class="email-title">${escapeHtml(heading)}</h1>
-      ${state.greeting ? `<p class="email-greeting">${escapeHtml(state.greeting)}</p>` : ''}
-      ${state.intro ? `<p class="email-intro">${escapeHtml(state.intro)}</p>` : ''}
-      ${buildSection('completed', grouped.completed)}
-      ${buildSection('hold', grouped.hold)}
-      ${buildSection('pending', grouped.pending)}
-      ${state.closing ? `<p class="email-closing">${escapeHtml(state.closing)}</p>` : ''}
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;">
+      <tr>
+        <td align="center" style="padding:0;">
+          <table role="presentation" width="760" cellpadding="0" cellspacing="0" style="width:760px;max-width:100%;border-collapse:collapse;background:#ffffff;font-family:Aptos, Calibri, Arial, sans-serif;color:#24112f;">
+            <tr>
+              <td style="padding:22px 24px 8px 24px;">
+                <div style="margin:0 0 14px 0;color:#370641;font-size:22px;line-height:1.25;font-weight:700;">${escapeHtml(heading)}</div>
+                ${state.greeting ? `<div style="margin:0 0 12px 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.greeting)}</div>` : ''}
+                ${state.intro ? `<div style="margin:0 0 12px 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.intro)}</div>` : ''}
+                ${buildSection('completed', grouped.completed)}
+                ${buildSection('hold', grouped.hold)}
+                ${buildSection('pending', grouped.pending)}
+                ${state.closing ? `<div style="margin:18px 0 0 0;color:#222222;font-size:13px;line-height:1.45;">${nl2br(state.closing)}</div>` : ''}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 }
 
@@ -303,21 +369,64 @@ function renderPreview() {
   saveState();
 }
 
+function legacyCopyHtml(html) {
+  const holder = document.createElement('div');
+  holder.setAttribute('contenteditable', 'true');
+  holder.style.position = 'fixed';
+  holder.style.left = '-9999px';
+  holder.style.top = '0';
+  holder.style.width = '1px';
+  holder.style.height = '1px';
+  holder.style.overflow = 'hidden';
+  holder.innerHTML = html;
+  document.body.appendChild(holder);
+
+  const range = document.createRange();
+  range.selectNodeContents(holder);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } finally {
+    selection.removeAllRanges();
+    holder.remove();
+  }
+  return copied;
+}
+
 async function copyRichHtml() {
   const html = buildEmailHtml();
   const plain = buildPlainText();
 
   try {
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        'text/html': new Blob([html], { type: 'text/html' }),
-        'text/plain': new Blob([plain], { type: 'text/plain' })
-      })
-    ]);
-    showStatus('Mail body copied. Paste it directly in Gmail/Outlook compose.');
+    if (navigator.clipboard && window.ClipboardItem) {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' })
+        })
+      ]);
+      showStatus('Formatted mail table copied. Paste it directly in Gmail or Outlook compose.');
+      return;
+    }
+
+    if (legacyCopyHtml(html)) {
+      showStatus('Formatted mail table copied. Paste it directly in Gmail or Outlook compose.');
+      return;
+    }
+
+    throw new Error('Rich clipboard copy is not available.');
   } catch {
+    if (legacyCopyHtml(html)) {
+      showStatus('Formatted mail table copied using browser fallback. Paste it directly in Gmail or Outlook compose.');
+      return;
+    }
+
     await navigator.clipboard.writeText(plain);
-    showStatus('Plain text copied. Rich HTML copy was not supported by this browser.');
+    showStatus('Plain text copied. Use Chrome/Edge over HTTPS for formatted table copy.', true);
   }
 }
 
